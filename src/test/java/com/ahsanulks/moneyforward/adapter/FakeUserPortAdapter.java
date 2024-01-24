@@ -11,9 +11,11 @@ import com.ahsanulks.moneyforward.hexagon.ports.driven.UserResponseDto;
 
 public class FakeUserPortAdapter implements UserPort {
     private HashMap<Integer, UserResponseDto> data;
+    private HashMap<Integer, List<AccountResponseDto>> accounts;
 
     public FakeUserPortAdapter() {
         data = new HashMap<>();
+        accounts = new HashMap<>();
     }
 
     @Override
@@ -27,6 +29,20 @@ public class FakeUserPortAdapter implements UserPort {
 
     @Override
     public List<AccountResponseDto> getUserAccounts(int id) {
-        return new ArrayList<>();
+        var accounts = this.accounts.get(Integer.valueOf(id));
+        return accounts == null ? new ArrayList<>() : accounts;
+    }
+
+    public void addUserAccount(AccountResponseDto account) {
+        if (!this.data.containsKey(Integer.valueOf(account.getUserId())))
+            return;
+
+        var accounts = this.accounts.get(Integer.valueOf(account.getId()));
+        if (accounts == null) {
+            accounts = new ArrayList<>();
+        }
+
+        accounts.add(account);
+        this.accounts.put(Integer.valueOf(account.getUserId()), accounts);
     }
 }

@@ -1,7 +1,10 @@
 package com.ahsanulks.moneyforward.hexagon.ports.driven;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserPort {
-    Optional<UserPortResponseDTO> getUserById(int id);
+    Optional<UserResponseDto> getUserById(int id);
+
+    List<AccountResponseDto> getUserAccounts(int id);
 }

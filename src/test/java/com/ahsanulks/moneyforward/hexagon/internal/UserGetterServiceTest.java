@@ -4,14 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.ahsanulks.moneyforward.adapter.FakeUserPortAdapter;
 import com.ahsanulks.moneyforward.hexagon.exception.ResourceNotFoundException;
-import com.ahsanulks.moneyforward.hexagon.ports.driven.UserPortResponseDTO;
+import com.ahsanulks.moneyforward.hexagon.ports.driven.UserResponseDto;
 import com.github.javafaker.Faker;
 
 public class UserGetterServiceTest {
@@ -50,8 +49,8 @@ public class UserGetterServiceTest {
         assertThat(user.getAccounts()).isEmpty();
     }
 
-    private UserPortResponseDTO generateUserAdapterData() {
-        var userAdapterData = new UserPortResponseDTO();
+    private UserResponseDto generateUserAdapterData() {
+        var userAdapterData = new UserResponseDto();
         userAdapterData.setId(faker.number().randomDigitNotZero());
         userAdapterData.setName(faker.name().fullName());
         userAdapterData.setAccountIds(new ArrayList<>());

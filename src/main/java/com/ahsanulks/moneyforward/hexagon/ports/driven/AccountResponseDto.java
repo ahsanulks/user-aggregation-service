@@ -1,14 +1,15 @@
 package com.ahsanulks.moneyforward.hexagon.ports.driven;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserPortResponseDTO {
+public class AccountResponseDto {
     private int id;
+    private int userId;
     private String name;
-    private List<Integer> accountIds;
+    private BigDecimal balance;
 }

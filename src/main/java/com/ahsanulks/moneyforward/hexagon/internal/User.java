@@ -11,4 +11,8 @@ public class User {
     private int id;
     private String name;
     private List<Account> accounts;
+
+    public void setAccounts(List<Account> accounts) {
+        this.accounts = accounts;
+    }
 }

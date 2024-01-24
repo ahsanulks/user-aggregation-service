@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.ahsanulks.moneyforward.adapter.FakeUserPortAdapter;
 import com.ahsanulks.moneyforward.hexagon.exception.ResourceNotFoundException;
 
 public class UserGetterServiceTest {
@@ -13,7 +14,7 @@ public class UserGetterServiceTest {
 
     @BeforeAll
     static void setUp() {
-        userGetter = new UserGetterService();
+        userGetter = new UserGetterService(new FakeUserPortAdapter());
     }
 
     @Test

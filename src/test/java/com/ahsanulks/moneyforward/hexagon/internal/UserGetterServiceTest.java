@@ -18,10 +18,22 @@ public class UserGetterServiceTest {
     }
 
     @Test
-    void itShouldErrorWhenUserNotFound() {
+    void whenUserNotFound_itShouldError() {
         var exception = assertThrows(ResourceNotFoundException.class, () -> {
             userGetter.getUserAccountById(123);
         });
         assertThat(exception.getMessage()).isEqualTo("User not found");
+    }
+
+    @Test
+    void whenAccountEmpty_itShouldReturnUserWithEmptyAccount() {
+        var user = userGetter.getUserAccountById(1);
+
+        var expectedUser = User.builder()
+                .id(1)
+                .name("test name")
+                .build();
+
+        assertThat(user).isEqualTo(expectedUser);
     }
 }

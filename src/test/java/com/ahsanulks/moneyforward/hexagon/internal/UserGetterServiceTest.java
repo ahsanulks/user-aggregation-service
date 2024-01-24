@@ -3,18 +3,27 @@ package com.ahsanulks.moneyforward.hexagon.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.ahsanulks.moneyforward.adapter.FakeUserPortAdapter;
 import com.ahsanulks.moneyforward.hexagon.exception.ResourceNotFoundException;
+import com.ahsanulks.moneyforward.hexagon.ports.driven.UserPortResponseDTO;
+import com.github.javafaker.Faker;
 
 public class UserGetterServiceTest {
     private static UserGetterService userGetter;
+    private static FakeUserPortAdapter fakeUserPortAdapter;
+    private static Faker faker;
 
     @BeforeAll
     static void setUp() {
-        userGetter = new UserGetterService(new FakeUserPortAdapter());
+        fakeUserPortAdapter = new FakeUserPortAdapter();
+        userGetter = new UserGetterService(fakeUserPortAdapter);
+        faker = new Faker();
     }
 
     @Test
@@ -27,13 +36,28 @@ public class UserGetterServiceTest {
 
     @Test
     void whenAccountEmpty_itShouldReturnUserWithEmptyAccount() {
-        var user = userGetter.getUserAccountById(1);
+        var userAdapterData = generateUserAdapterData();
+
+        var user = userGetter.getUserAccountById(userAdapterData.getId());
 
         var expectedUser = User.builder()
-                .id(1)
-                .name("test name")
+                .id(userAdapterData.getId())
+                .name(userAdapterData.getName())
                 .build();
 
-        assertThat(user).isEqualTo(expectedUser);
+        assertThat(user.getId()).isEqualTo(expectedUser.getId());
+        assertThat(user.getName()).isEqualTo(expectedUser.getName());
+        assertThat(user.getAccounts()).isEmpty();
+    }
+
+    private UserPortResponseDTO generateUserAdapterData() {
+        var userAdapterData = new UserPortResponseDTO();
+        userAdapterData.setId(faker.number().randomDigitNotZero());
+        userAdapterData.setName(faker.name().fullName());
+        userAdapterData.setAccountIds(new ArrayList<>());
+
+        fakeUserPortAdapter.addUser(userAdapterData);
+
+        return userAdapterData;
     }
 }

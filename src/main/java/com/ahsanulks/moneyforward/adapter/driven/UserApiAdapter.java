@@ -34,7 +34,14 @@ public class UserApiAdapter implements UserPort {
 
     @Override
     public Optional<UserResponseDto> getUserById(int id) {
-        return Optional.empty();
+        try {
+            return Optional.ofNullable(
+                    restTemplate.getForObject(userBaseUrl + "/users/{id}", UserResponseDto.class, id));
+        } catch (RestClientException ex) {
+            log.error("Error while calling user API: {}", ex.getMessage(), ex);
+
+            return Optional.empty();
+        }
     }
 
     @Override

@@ -58,6 +58,19 @@ public class UserApiAdapterTest {
     }
 
     @Test
+    void whenUserEndpointError_itShouldThrowError() {
+        var userId = faker.number().randomDigitNotZero();
+        mockServer.expect(requestTo(baseUrl + "/users/" + userId))
+                .andRespond(withServerError());
+
+        var throwable = assertThrows(RuntimeException.class, () -> userApiAdapter.getUserById(userId));
+
+        mockServer.verify();
+
+        assertThat(throwable.getMessage()).isEqualTo("Internal Server Error");
+    }
+
+    @Test
     void whenAccountsFound_itShouldReturnListAccounts() {
         var userId = faker.number().randomDigitNotZero();
         var accounts = Arrays.asList(generateAccount(userId), generateAccount(userId), generateAccount(userId));

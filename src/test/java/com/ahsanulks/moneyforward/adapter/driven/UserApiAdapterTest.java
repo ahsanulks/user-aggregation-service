@@ -2,6 +2,7 @@ package com.ahsanulks.moneyforward.adapter.driven;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -28,17 +29,32 @@ public class UserApiAdapterTest {
     private UserApiAdapter userApiAdapter;
     private MockRestServiceServer mockServer;
     private static Faker faker;
+    private static String baseUrl;
 
     @BeforeAll
     static void setUpAll() {
         faker = new Faker();
+        baseUrl = "http://example.com/api";
     }
 
     @BeforeEach
     void setUp() {
         RestTemplate restTemplate = new RestTemplate();
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        userApiAdapter = new UserApiAdapter(restTemplate, "http://example.com/api");
+        userApiAdapter = new UserApiAdapter(restTemplate, baseUrl);
+    }
+
+    @Test
+    void whenUserNotFound_itShouldReturnEmpty() {
+        var userId = faker.number().randomDigitNotZero();
+        mockServer.expect(requestTo(baseUrl + "/users/" + userId))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        var result = userApiAdapter.getUserById(userId);
+
+        mockServer.verify();
+
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -59,7 +75,12 @@ public class UserApiAdapterTest {
                         account.getId(), account.getUserId(), account.getName(), account.getBalance()))
                 .collect(Collectors.joining(",\n", "[\n", "\n]"));
 
-        mockServer.expect(requestTo("http://example.com/api/users/" + userId + "/accounts"))
+        if (jsonResponse == null) {
+            fail("response need to be present");
+            return;
+        }
+
+        mockServer.expect(requestTo(baseUrl + "/users/" + userId + "/accounts"))
                 .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
 
         List<AccountResponseDto> result = userApiAdapter.getUserAccounts(userId);
@@ -76,7 +97,7 @@ public class UserApiAdapterTest {
     @Test
     void whenAccountsNotFound_itShouldReturnEmptyList() {
         var userId = faker.number().randomDigitNotZero();
-        mockServer.expect(requestTo("http://example.com/api/users/" + userId + "/accounts"))
+        mockServer.expect(requestTo(baseUrl + "/users/" + userId + "/accounts"))
                 .andRespond(withStatus(HttpStatus.NOT_FOUND));
 
         List<AccountResponseDto> result = userApiAdapter.getUserAccounts(userId);
@@ -89,7 +110,7 @@ public class UserApiAdapterTest {
     @Test
     void whenAccountsEndpointError_itShouldThrowError() {
         var userId = faker.number().randomDigitNotZero();
-        mockServer.expect(requestTo("http://example.com/api/users/" + userId + "/accounts"))
+        mockServer.expect(requestTo(baseUrl + "/users/" + userId + "/accounts"))
                 .andRespond(withServerError());
 
         var throwable = assertThrows(RuntimeException.class, () -> userApiAdapter.getUserAccounts(userId));

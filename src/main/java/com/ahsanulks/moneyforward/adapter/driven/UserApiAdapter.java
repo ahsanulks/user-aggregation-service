@@ -51,7 +51,13 @@ public class UserApiAdapter implements UserPort {
             return responseEntity.getBody();
         } catch (RestClientException ex) {
             log.error("Error while calling user API: {}", ex.getMessage(), ex);
-            throw ex;
+
+            if (ex instanceof HttpClientErrorException
+                    && ((HttpClientErrorException) ex).getStatusCode() == HttpStatus.NOT_FOUND) {
+                return Collections.emptyList();
+            } else {
+                throw new RuntimeException("Internal Server Error", ex);
+            }
         }
     }
 

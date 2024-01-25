@@ -1,6 +1,7 @@
 package com.ahsanulks.moneyforward.adapter.driven;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -8,8 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -19,20 +20,25 @@ import com.ahsanulks.moneyforward.hexagon.ports.driven.AccountResponseDto;
 import com.github.javafaker.Faker;
 
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 public class UserApiAdapterTest {
-    private static UserApiAdapter userApiAdapter;
-    private static MockRestServiceServer mockServer;
+    private UserApiAdapter userApiAdapter;
+    private MockRestServiceServer mockServer;
     private static Faker faker;
 
     @BeforeAll
-    static void setUp() {
-        RestTemplate restTemplate = new RestTemplateBuilder().build();
+    static void setUpAll() {
+        faker = new Faker();
+    }
+
+    @BeforeEach
+    void setUp() {
+        RestTemplate restTemplate = new RestTemplate();
         mockServer = MockRestServiceServer.createServer(restTemplate);
         userApiAdapter = new UserApiAdapter(restTemplate, "http://example.com/api");
-        faker = new Faker();
     }
 
     @Test
@@ -78,6 +84,19 @@ public class UserApiAdapterTest {
         mockServer.verify();
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void whenAccountsEndpointError_itShouldThrowError() {
+        var userId = faker.number().randomDigitNotZero();
+        mockServer.expect(requestTo("http://example.com/api/users/" + userId + "/accounts"))
+                .andRespond(withServerError());
+
+        var throwable = assertThrows(RuntimeException.class, () -> userApiAdapter.getUserAccounts(userId));
+
+        mockServer.verify();
+
+        assertThat(throwable.getMessage()).isEqualTo("Internal Server Error");
     }
 
     private void assertAccountEquals(AccountResponseDto actual, AccountResponseDto expected) {

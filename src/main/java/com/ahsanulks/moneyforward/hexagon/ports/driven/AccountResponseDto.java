@@ -9,12 +9,12 @@ import lombok.Setter;
 
 @Setter
 public class AccountResponseDto {
+    @JsonProperty("attributes")
+    private AccountAttribute attributes;
+
     public AccountResponseDto() {
         this.attributes = new AccountAttribute();
     }
-
-    @JsonProperty("attributes")
-    private AccountAttribute attributes;
 
     public int getId() {
         return this.attributes.getId();

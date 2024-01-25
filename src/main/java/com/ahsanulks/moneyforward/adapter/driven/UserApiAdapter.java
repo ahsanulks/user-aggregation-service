@@ -40,7 +40,12 @@ public class UserApiAdapter implements UserPort {
         } catch (RestClientException ex) {
             log.error("Error while calling user API: {}", ex.getMessage(), ex);
 
-            return Optional.empty();
+            if (ex instanceof HttpClientErrorException
+                    && ((HttpClientErrorException) ex).getStatusCode() == HttpStatus.NOT_FOUND) {
+                return Optional.empty();
+            } else {
+                throw new RuntimeException("Internal Server Error", ex);
+            }
         }
     }
 
@@ -57,7 +62,7 @@ public class UserApiAdapter implements UserPort {
 
             return responseEntity.getBody();
         } catch (RestClientException ex) {
-            log.error("Error while calling user API: {}", ex.getMessage(), ex);
+            log.error("Error while calling user accounts API: {}", ex.getMessage(), ex);
 
             if (ex instanceof HttpClientErrorException
                     && ((HttpClientErrorException) ex).getStatusCode() == HttpStatus.NOT_FOUND) {

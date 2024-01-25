@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
@@ -18,6 +19,7 @@ import com.ahsanulks.moneyforward.hexagon.ports.driven.AccountResponseDto;
 import com.github.javafaker.Faker;
 
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 public class UserApiAdapterTest {
@@ -63,6 +65,19 @@ public class UserApiAdapterTest {
         for (int i = 0; i < accounts.size(); i++) {
             assertAccountEquals(result.get(i), accounts.get(i));
         }
+    }
+
+    @Test
+    void whenAccountsNotFound_itShouldReturnEmptyList() {
+        var userId = faker.number().randomDigitNotZero();
+        mockServer.expect(requestTo("http://example.com/api/users/" + userId + "/accounts"))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        List<AccountResponseDto> result = userApiAdapter.getUserAccounts(userId);
+
+        mockServer.verify();
+
+        assertThat(result).isEmpty();
     }
 
     private void assertAccountEquals(AccountResponseDto actual, AccountResponseDto expected) {

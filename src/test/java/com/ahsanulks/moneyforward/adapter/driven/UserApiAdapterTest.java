@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -18,6 +19,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
 import com.ahsanulks.moneyforward.hexagon.ports.driven.AccountResponseDto;
+import com.ahsanulks.moneyforward.hexagon.ports.driven.UserResponseDto;
 import com.github.javafaker.Faker;
 
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -68,6 +70,29 @@ public class UserApiAdapterTest {
         mockServer.verify();
 
         assertThat(throwable.getMessage()).isEqualTo("Internal Server Error");
+    }
+
+    @Test
+    void whenUserFound_itShouldReturnUser() {
+        var userId = faker.number().randomDigitNotZero();
+        var expectedUser = new UserResponseDto();
+        expectedUser.setId(userId);
+        expectedUser.setName(faker.name().fullName());
+        expectedUser.setAccountIds(Arrays.asList(1, 2, 3));
+
+        var jsonResponse = "{ \"attributes\": { \"id\": " + expectedUser.getId() + ", \"name\": \""
+                + expectedUser.getName() + "\", \"account_ids\": [1, 2, 3] } }";
+        mockServer.expect(requestTo(baseUrl + "/users/" + userId))
+                .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
+
+        Optional<UserResponseDto> result = userApiAdapter.getUserById(userId);
+
+        mockServer.verify();
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(expectedUser.getId());
+        assertThat(result.get().getName()).isEqualTo(expectedUser.getName());
+        assertThat(result.get().getAccountIds()).containsAll(expectedUser.getAccountIds());
     }
 
     @Test

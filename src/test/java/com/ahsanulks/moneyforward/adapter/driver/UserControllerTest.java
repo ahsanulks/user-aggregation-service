@@ -34,7 +34,9 @@ public class UserControllerTest {
         userService = new FakeUserGetterService();
         userController = new UserController(userService);
         faker = new Faker();
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(userController)
+                .setControllerAdvice(GlobalExceptionHandler.class)
+                .build();
     }
 
     @Test

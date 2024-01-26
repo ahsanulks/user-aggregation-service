@@ -5,8 +5,9 @@ import java.util.stream.Collectors;
 
 import com.ahsanulks.moneyforward.hexagon.exception.ResourceNotFoundException;
 import com.ahsanulks.moneyforward.hexagon.ports.driven.UserPort;
+import com.ahsanulks.moneyforward.hexagon.ports.driver.GetUserService;
 
-public class UserGetterService {
+public class UserGetterService implements GetUserService {
    private final UserPort userPort;
 
    public UserGetterService(

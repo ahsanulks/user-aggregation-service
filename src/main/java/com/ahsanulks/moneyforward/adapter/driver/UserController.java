@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ahsanulks.moneyforward.hexagon.internal.User;
 import com.ahsanulks.moneyforward.hexagon.ports.driver.GetUserService;
 
 @RestController
@@ -18,7 +19,7 @@ public class UserController {
     }
 
     @GetMapping("users/{id}")
-    public ResponseEntity<Object> getUserById(@PathVariable int id) {
+    public ResponseEntity<User> getUserById(@PathVariable int id) {
         var user = getUserService.getUserAccountById(id);
         return ResponseEntity.ok().body(user);
     }

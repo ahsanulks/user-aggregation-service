@@ -27,6 +27,7 @@ public class UserControllerTest {
     private static UserController userController;
     private static FakeUserGetterService userService;
     private static Faker faker;
+    private final String userUrl = "/api/v1/users/{userId}";
 
     @BeforeAll
     static void setUpAll() {
@@ -52,15 +53,27 @@ public class UserControllerTest {
             accountMatcher = new ResultMatcher[0];
         }
 
-        mockMvc.perform(get("/api/v1/users/{userId}", userId)
-                .contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE)))
+        mockMvc.perform(get(userUrl, userId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpectAll(
                         status().isOk(),
-                        content().contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE)),
+                        content().contentType(MediaType.APPLICATION_JSON_VALUE),
                         jsonPath("$.id").value(expectedUser.getId()),
                         jsonPath("$.name").value(expectedUser.getName()),
                         jsonPath("$.accounts").isArray())
                 .andExpectAll(accountMatcher);
+    }
+
+    @Test
+    void whenUserNotFound_itShouldReturn404() throws Exception {
+        int userId = faker.number().randomDigitNotZero();
+
+        mockMvc.perform(get(userUrl, userId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.message").value("User not found"))
+                .andExpect(jsonPath("$.type").value("ResourceNotFoundException"));
     }
 
     private List<Account> generateAccount() {

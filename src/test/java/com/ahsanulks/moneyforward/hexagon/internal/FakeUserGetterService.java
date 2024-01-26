@@ -15,6 +15,10 @@ public class FakeUserGetterService implements GetUserService {
 
     @Override
     public User getUserAccountById(int id) {
+        if (id == 123) {
+            throw new RuntimeException("Internal server error");
+        }
+
         if (data.containsKey(Integer.valueOf(id))) {
             return data.get(Integer.valueOf(id));
         } else {

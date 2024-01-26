@@ -78,6 +78,18 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.type").value("ResourceNotFoundException"));
     }
 
+    @Test
+    void whenRuntimeError_itShouldReturn500() throws Exception {
+        int userId = 123;
+
+        mockMvc.perform(get(userUrl, userId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().is5xxServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.message").value("Internal server error"))
+                .andExpect(jsonPath("$.type").value("RuntimeException"));
+    }
+
     private List<Account> generateAccount() {
         var factory = new AccountFactory();
         return Arrays.asList(factory.createAccount(), factory.createAccount(), factory.createAccount());

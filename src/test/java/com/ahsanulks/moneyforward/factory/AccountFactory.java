@@ -14,6 +14,7 @@ public class AccountFactory {
 
     public Account createAccount() {
         var account = Account.builder()
+                .id(faker.number().randomDigitNotZero())
                 .name(faker.name().fullName())
                 .balance(new BigDecimal(faker.number().randomDigitNotZero()))
                 .build();

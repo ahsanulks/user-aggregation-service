@@ -15,6 +15,7 @@ public class UserGetterService implements GetUserService {
       this.userPort = userPort;
    }
 
+   @Override
    public User getUserAccountById(int id) {
       var user = getUserDataById(id);
 
@@ -36,6 +37,7 @@ public class UserGetterService implements GetUserService {
       return this.userPort.getUserAccounts(id).stream()
             .map(accountResponse -> {
                return Account.builder()
+                     .id(accountResponse.getId())
                      .name(accountResponse.getName())
                      .balance(accountResponse.getBalance())
                      .build();

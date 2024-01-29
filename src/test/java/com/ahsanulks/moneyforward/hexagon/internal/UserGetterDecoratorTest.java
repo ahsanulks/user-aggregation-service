@@ -53,4 +53,21 @@ public class UserGetterDecoratorTest {
         assertThat(accountResult.getName()).isEqualTo(userAccount.get(0).getName());
         assertThat(accountResult.getId()).isEqualTo(userAccount.get(0).getId());
     }
+
+    @Test
+    void whenUserFoundButAccountNotFound_itShouldReturnBalanceZero() {
+        var user = userFactory.createUserWithAccount();
+        fakeUserGetterService.addUser(user);
+
+        var userAccount = user.getAccounts().get(0);
+
+        var result = userService.getUserAccountById(user.getId());
+        var accountResult = result.getAccounts().get(0);
+
+        assertThat(result.getId()).isEqualTo(user.getId());
+        assertThat(result.getName()).isEqualTo(user.getName());
+        assertThat(accountResult.getBalance()).isEqualTo(new BigDecimal(0));
+        assertThat(accountResult.getName()).isEqualTo(userAccount.getName());
+        assertThat(accountResult.getId()).isEqualTo(userAccount.getId());
+    }
 }

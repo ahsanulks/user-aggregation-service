@@ -34,6 +34,8 @@ public class UserApiAdapter implements UserPort {
 
     @Override
     public Optional<UserResponseDto> getUserById(int id) {
+        log.info("Call user API with id {}", id);
+
         try {
             return Optional.ofNullable(
                     restTemplate.getForObject(userBaseUrl + "/users/{id}", UserResponseDto.class, id));
@@ -51,6 +53,8 @@ public class UserApiAdapter implements UserPort {
 
     @Override
     public List<AccountResponseDto> getUserAccounts(int id) {
+        log.info("Call user account API with id {}", id);
+
         try {
             ResponseEntity<List<AccountResponseDto>> responseEntity = restTemplate.exchange(
                     userBaseUrl + "/users/{id}/accounts",

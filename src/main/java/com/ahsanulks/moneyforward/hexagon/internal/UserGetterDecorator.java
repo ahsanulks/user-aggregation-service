@@ -16,6 +16,7 @@ public class UserGetterDecorator implements GetUserService {
 
     @Override
     public User getUserAccountById(int id) {
+        return this.getUserService.getUserAccountById(id);
     }
 
 }
